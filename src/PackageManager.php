@@ -40,11 +40,11 @@ class PackageManager implements PackageManagerInterface {
     $modules = $this->container->getParameter('container.modules');
     foreach ($modules as $module_name => $data) {
       $module_path = strstr($data['pathname'], $module_name, TRUE) . $module_name;
-      $config_path = $root . '/' . $module_path . '/ludwig.json';
-      $config = $this->jsonRead($config_path);
-      if (!isset($config['require'])) {
-        $config['require'] = [];
-      }
+      $config = $this->jsonRead($root . '/' . $module_path . '/ludwig.json');
+      $config += [
+        'require' => [],
+      ];
+
       foreach ($config['require'] as $package_name => $package_data) {
         $namespace = '';
         $src_dir = '';
@@ -69,8 +69,8 @@ class PackageManager implements PackageManagerInterface {
           'description' => $description,
           'module' => $module_name,
           'download_url' => $package_data['url'],
-          'namespace' => $namespace,
           'path' => $package_path,
+          'namespace' => $namespace,
           'src_dir' => $src_dir,
           'installed' => !empty($namespace) && !empty($src_dir),
         ];
@@ -82,6 +82,9 @@ class PackageManager implements PackageManagerInterface {
 
   /**
    * Reads and decodes a json file into an array.
+   *
+   * @param string $filename
+   *   Name of the file to read.
    *
    * @return array
    *   The decoded json data.
