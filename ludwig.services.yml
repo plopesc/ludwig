@@ -1,0 +1,4 @@
+services:
+  ludwig.package_manager:
+    class: Drupal\ludwig\PackageManager
+    arguments: ['@service_container']
