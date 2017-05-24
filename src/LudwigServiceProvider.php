@@ -21,7 +21,7 @@ class LudwigServiceProvider extends ServiceProviderBase {
     $namespaces = $container->getParameter('container.namespaces');
     $packages = $package_manager->getPackages();
     foreach ($packages as $package_name => $package) {
-      if ($package['found']) {
+      if ($package['installed']) {
         $namespaces[$package['namespace']] = $package['path'] . '/' . $package['src_dir'];
       }
     }

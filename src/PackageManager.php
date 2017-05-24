@@ -38,8 +38,8 @@ class PackageManager implements PackageManagerInterface {
     $packages = [];
     $root = $this->container->get('app.root');
     $modules = $this->container->getParameter('container.modules');
-    foreach ($modules as $module => $data) {
-      $module_path = strstr($data['pathname'], $module, TRUE) . $module;
+    foreach ($modules as $module_name => $data) {
+      $module_path = strstr($data['pathname'], $module_name, TRUE) . $module_name;
       $config_path = $root . '/' . $module_path . '/ludwig.json';
       $config = $this->jsonRead($config_path);
       if (!isset($config['require'])) {
@@ -50,6 +50,8 @@ class PackageManager implements PackageManagerInterface {
         $src_dir = '';
         $package_path = $module_path . '/lib/' . str_replace('/', '-', $package_name) . '/' . $package_data['version'];
         $package = $this->jsonRead($root . '/' . $package_path . '/composer.json');
+        $homepage = !empty($package['homepage']) ? $package['homepage'] : '';
+        $description = !empty($package['description']) ? $package['description'] : '';
         if (!empty($package['autoload'])) {
           $autoload = reset($package['autoload']);
           $package_namespaces = array_keys($autoload);
@@ -60,13 +62,17 @@ class PackageManager implements PackageManagerInterface {
             $namespace = substr($namespace, 0, -1);
           }
         }
+
         $packages[$package_name] = [
           'version' => $package_data['version'],
-          'url' => $package_data['url'],
+          'homepage' => $homepage,
+          'description' => $description,
+          'module' => $module_name,
+          'download_url' => $package_data['url'],
           'namespace' => $namespace,
           'path' => $package_path,
           'src_dir' => $src_dir,
-          'found' => !empty($namespace) && !empty($src_dir),
+          'installed' => !empty($namespace) && !empty($src_dir),
         ];
       }
     }

@@ -47,7 +47,6 @@ required version in a new release, which then forces the site administrator to d
 new release, since the library is suddenly no longer found.
 
 ## Future improvements
- - A reports page that lists the packages and their statuses (Found / Not Found).
  - Automatic downloads and unzipping?
 
 ## Limitations
