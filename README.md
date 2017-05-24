@@ -46,10 +46,13 @@ Requiring explicit versions, and having version subfolders means that the module
 required version in a new release, which then forces the site administrator to download that
 new release, since the library is suddenly no longer found.
 
-## Future improvements
- - Automatic downloads and unzipping?
-
 ## Limitations
 Two modules can't share the same dependency. One module can define the Ludwig package,
 while the other module depends on the first module.
+
+## Future improvements
+ - Automatic downloads and unzipping?
+
+## Name origin
+Ludwig van Beethoven was a **deaf composer**.
 
