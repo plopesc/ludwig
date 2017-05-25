@@ -64,6 +64,7 @@ class PackageManager implements PackageManagerInterface {
         }
 
         $packages[$package_name] = [
+          'name' => $package_name,
           'version' => $package_data['version'],
           'homepage' => $homepage,
           'description' => $description,

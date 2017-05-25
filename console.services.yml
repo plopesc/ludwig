@@ -1,0 +1,6 @@
+services:
+  ludwig.ludwig_download:
+    class: Drupal\ludwig\Command\DownloadCommand
+    arguments: []
+    tags:
+      - { name: drupal.command }
