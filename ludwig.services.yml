@@ -1,7 +1,8 @@
 services:
   ludwig.package_manager:
     class: Drupal\ludwig\PackageManager
-    arguments: ['@service_container']
+    arguments: ['@app.root']
+
   ludwig.package_downloader:
     class: Drupal\ludwig\PackageDownloader
     arguments: ['@file_system', '@module_handler', '@app.root', '@site.path']

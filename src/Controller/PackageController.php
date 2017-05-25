@@ -117,7 +117,7 @@ class PackageController implements ContainerInjectionInterface {
             'data' => $package_column,
           ],
           'version' => $package['version'],
-          'required_by' =>  $this->moduleData[$package['module']]['name'],
+          'required_by' =>  $this->moduleData[$package['provider']]['name'],
           'status' => $package['installed'] ? $this->t('Installed') : $this->t('Missing'),
         ],
       ];

@@ -2,45 +2,51 @@
 
 namespace Drupal\ludwig;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
 /**
  * Provides information about ludwig-managed packages.
  *
- * Modules can define a ludwig.json which is discovered by this class.
- *
- * The container is used instead of the ModuleHandler to allow the
- * class to be used within a service provider.
+ * Extensions (modules, profiles) can define a ludwig.json which is
+ * discovered by this class. This discovery works even without a
+ * Drupal installation, and covers non-installed extensions.
  */
 class PackageManager implements PackageManagerInterface {
 
   /**
-   * The container.
+   * The app root.
    *
-   * @var \Symfony\Component\DependencyInjection\ContainerInterface
+   * @var string
    */
-  protected $container;
+  protected $root;
 
   /**
    * Constructs a new PackageManager object.
    *
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   *   The container.
+   * @param string $root
+   *   The app root.
    */
-  public function __construct(ContainerInterface $container) {
-    $this->container = $container;
+  public function __construct($root) {
+    $this->root = $root;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPackages() {
+    $listing = new ExtensionDiscovery($this->root);
+    // Get all profiles, and modules belonging to those profiles.
+    $profiles = $listing->scan('profile');
+    $profile_directories = array_map(function ($profile) {
+      return $profile->getPath();
+    }, $profiles);
+    $listing->setProfileDirectories($profile_directories);
+    $modules = $listing->scan('module');
+    /** @var \Drupal\Core\Extension\Extension[] $extensions */
+    $extensions = $profiles + $modules;
+
     $packages = [];
-    $root = $this->container->get('app.root');
-    $modules = $this->container->getParameter('container.modules');
-    foreach ($modules as $module_name => $data) {
-      $module_path = strstr($data['pathname'], $module_name, TRUE) . $module_name;
-      $config = $this->jsonRead($root . '/' . $module_path . '/ludwig.json');
+    foreach ($extensions as $extension_name => $extension) {
+      $extension_path = $extension->getPath();
+      $config = $this->jsonRead($this->root . '/' . $extension_path . '/ludwig.json');
       $config += [
         'require' => [],
       ];
@@ -48,10 +54,10 @@ class PackageManager implements PackageManagerInterface {
       foreach ($config['require'] as $package_name => $package_data) {
         $namespace = '';
         $src_dir = '';
-        $package_path = $module_path . '/lib/' . str_replace('/', '-', $package_name) . '/' . $package_data['version'];
-        $package = $this->jsonRead($root . '/' . $package_path . '/composer.json');
-        $homepage = !empty($package['homepage']) ? $package['homepage'] : '';
+        $package_path = $extension_path . '/lib/' . str_replace('/', '-', $package_name) . '/' . $package_data['version'];
+        $package = $this->jsonRead($this->root . '/' . $package_path . '/composer.json');
         $description = !empty($package['description']) ? $package['description'] : '';
+        $homepage = !empty($package['homepage']) ? $package['homepage'] : '';
         if (!empty($package['autoload'])) {
           $autoload = reset($package['autoload']);
           $package_namespaces = array_keys($autoload);
@@ -66,9 +72,9 @@ class PackageManager implements PackageManagerInterface {
         $packages[$package_name] = [
           'name' => $package_name,
           'version' => $package_data['version'],
-          'homepage' => $homepage,
           'description' => $description,
-          'module' => $module_name,
+          'homepage' => $homepage,
+          'provider' => $extension_name,
           'download_url' => $package_data['url'],
           'path' => $package_path,
           'namespace' => $namespace,

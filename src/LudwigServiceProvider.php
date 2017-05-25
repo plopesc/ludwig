@@ -17,11 +17,13 @@ class LudwigServiceProvider extends ServiceProviderBase {
    * {@inheritdoc}
    */
   public function register(ContainerBuilder $container) {
-    $package_manager = new PackageManager($container);
+    $root = $container->get('app.root');
+    $package_manager = new PackageManager($root);
+    $extensions = $container->getParameter('container.modules');
     $namespaces = $container->getParameter('container.namespaces');
-    $packages = $package_manager->getPackages();
-    foreach ($packages as $package_name => $package) {
-      if ($package['installed']) {
+    foreach ($package_manager->getPackages() as $package_name => $package) {
+      // Packages should not be added until their provider is installed.
+      if ($package['installed'] && isset($extensions[$package['provider']])) {
         $namespaces[$package['namespace']] = $package['path'] . '/' . $package['src_dir'];
       }
     }
