@@ -79,7 +79,7 @@ class PackageManager implements PackageManagerInterface {
           'path' => $package_path,
           'namespace' => $namespace,
           'src_dir' => $src_dir,
-          'installed' => !empty($namespace) && !empty($src_dir),
+          'installed' => !empty($namespace),
         ];
       }
     }

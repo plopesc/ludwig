@@ -24,11 +24,14 @@ class LudwigServiceProvider extends ServiceProviderBase {
     foreach ($package_manager->getPackages() as $package_name => $package) {
       // Packages should not be added until their provider is installed.
       if ($package['installed'] && isset($extensions[$package['provider']])) {
-        $namespaces[$package['namespace']] = $package['path'] . '/' . $package['src_dir'];
+        $namespace = $package['namespace'];
+        $namespaces[$namespace] = $package['path'];
+        if (!empty($package['src_dir'])) {
+          $namespaces[$namespace] .= '/' . $package['src_dir'];
+        }
       }
     }
     $container->setParameter('container.namespaces', $namespaces);
   }
-
 
 }
