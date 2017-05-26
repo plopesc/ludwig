@@ -15,6 +15,7 @@ function ludwig_drush_command() {
   return [
     'ludwig-download' => [
       'description' => "Downloads packages listed in ludwig.json files.",
+      'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_ROOT,
     ],
   ];
 }
