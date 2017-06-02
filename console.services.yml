@@ -4,3 +4,9 @@ services:
     arguments: []
     tags:
       - { name: drupal.command }
+  ludwig.ludwig_list:
+    class: Drupal\ludwig\Command\ListCommand
+    arguments: ['@ludwig.package_manager']
+    tags:
+      - { name: drupal.command }
+

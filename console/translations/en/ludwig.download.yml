@@ -1,4 +1,4 @@
-description: 'Downloads packages listed in ludwig.json files.'
+description: 'Downloads missing packages managed by Ludwig.'
 options: {}
 arguments: {}
 messages:

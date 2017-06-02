@@ -47,7 +47,13 @@ required version in a new release, which then forces the site administrator to d
 new release, since the library is suddenly no longer found.
 
 ## Commands
-- ludwig:download (Console) and ludwig_download (Drush) for automatically downloading all listed libraries.
+
+### Drupal Console
+- ludwig:download: Download missing packages.
+- ludwig:list: List all managed packages.
+
+### Drush
+- ludwig_download: Download missing packages.
 
 ## Limitations
 Two modules can't share the same dependency. One module can define the Ludwig package,
