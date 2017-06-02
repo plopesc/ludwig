@@ -19,11 +19,9 @@ class LudwigServiceProvider extends ServiceProviderBase {
   public function register(ContainerBuilder $container) {
     $root = $container->get('app.root');
     $package_manager = new PackageManager($root);
-    $extensions = $container->getParameter('container.modules');
     $namespaces = $container->getParameter('container.namespaces');
     foreach ($package_manager->getPackages() as $package_name => $package) {
-      // Packages should not be added until their provider is installed.
-      if ($package['installed'] && isset($extensions[$package['provider']])) {
+      if ($package['installed']) {
         $namespace = $package['namespace'];
         $namespaces[$namespace] = $package['path'];
         if (!empty($package['src_dir'])) {

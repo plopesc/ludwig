@@ -40,7 +40,7 @@ in the module's lib folder:
 - lib/commerceguys-enum/v1.0/
 - lib/commerceguys-addressing/v1.0.0-beta3/
 
-Ludwig's special ServiceProvider then detects the subfolders and adds them as PSR4 roots to Drupal's autoloader.
+After a cache clear, Ludwig's ServiceProvider detects the subfolders and adds them as PSR-4 roots to Drupal's autoloader.
 
 Requiring explicit versions, and having version subfolders means that the module can increase the
 required version in a new release, which then forces the site administrator to download that
