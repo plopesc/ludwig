@@ -26,7 +26,7 @@ Modules provide a ludwig.json file which lists all of their required libraries:
     },
     "commerceguys/addressing": {
       "version" : "v1.0.0-beta3",
-      "url": "https://github.com/commerceguys/addressing/releases/tag/v1.0.0-beta3"
+      "url": "https://github.com/commerceguys/addressing/archive/v1.0.0-beta3.zip"
     }
   }
 }
@@ -54,10 +54,6 @@ new release, since the library is suddenly no longer found.
 
 ### Drush
 - ludwig_download: Download missing packages.
-
-## Limitations
-Two modules can't share the same dependency. One module can define the Ludwig package,
-while the other module depends on the first module.
 
 ## Name origin
 Ludwig van Beethoven was a **deaf composer**.
