@@ -109,6 +109,10 @@ class PackageController implements ContainerInjectionInterface {
           '#suffix' => '</div>',
         ];
       }
+      $required_by = $package['provider'];
+      if (isset($this->moduleData[$package['provider']])) {
+        $required_by = $this->moduleData[$package['provider']]['name'];
+      }
 
       $build['packages']['#rows'][$package_name] = [
         'class' => $package['installed'] ? [] : ['error'],
@@ -117,7 +121,7 @@ class PackageController implements ContainerInjectionInterface {
             'data' => $package_column,
           ],
           'version' => $package['version'],
-          'required_by' =>  $this->moduleData[$package['provider']]['name'],
+          'required_by' =>  $required_by,
           'status' => $package['installed'] ? $this->t('Installed') : $this->t('Missing'),
         ],
       ];

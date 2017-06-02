@@ -169,7 +169,7 @@ class PackageDownloader implements PackageDownloaderInterface {
       'filepath' => $this->fileSystem->realpath($file),
     ]);
     if (!$archiver) {
-      throw new \Exception('Cannot extract %file, not a valid archive.', ['%file' => $file]);
+      throw new \Exception(sprintf('Cannot extract %file, not a valid archive.', ['%file' => $file]));
     }
 
     // Unfortunately, we can only use the directory name to determine the package
