@@ -2,6 +2,8 @@
 
 namespace Drupal\ludwig;
 
+use Drupal\Core\Extension\ExtensionDiscovery;
+
 /**
  * Provides information about ludwig-managed packages.
  *
