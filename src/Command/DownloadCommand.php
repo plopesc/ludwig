@@ -41,23 +41,21 @@ class DownloadCommand extends Command {
     $io = new DrupalStyle($input, $output);
     /** @var \Drupal\ludwig\PackageManagerInterface $package_manager */
     $package_manager = $this->get('ludwig.package_manager');
-    $packages = $package_manager->getPackages();
     /** @var \Drupal\ludwig\PackageDownloader $package_downloader */
     $package_downloader = $this->get('ludwig.package_downloader');
 
+    $packages = array_filter($package_manager->getPackages(), function ($package) {
+      return empty($package['installed']);
+    });
     foreach ($packages as $name => $package) {
-      if (!empty($package['installed'])) {
-        $io->success(sprintf('The package "%s" is already installed.', $name));
-        continue;
-      }
       if (empty($package['download_url'])) {
-        $io->error(sprintf('No download_url was provided for package "%s".', $name));
+        $io->error(sprintf($this->trans('commands.ludwig.download.errors.no-download-url'), $name));
         continue;
       }
 
       try {
         $package_downloader->download($package);
-        $io->success(sprintf('Downloaded package "%s".', $name));
+        $io->success(sprintf($this->trans('commands.ludwig.download.messages.success'), $name));
       }
       catch (FileTransferException $e) {
         $io->error(new TranslatableMarkup($e->getMessage(), $e->arguments));
@@ -65,7 +63,10 @@ class DownloadCommand extends Command {
       catch (\Exception $e) {
         $io->error($e->getMessage());
       }
+    }
 
+    if (empty($packages)) {
+      $io->success($this->trans('commands.ludwig.download.messages.no-download'));
     }
   }
 

@@ -14,7 +14,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 function ludwig_drush_command() {
   return [
     'ludwig-download' => [
-      'description' => "Downloads packages listed in ludwig.json files.",
+      'description' => "Downloads missing packages.",
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_ROOT,
     ],
   ];
@@ -26,15 +26,13 @@ function ludwig_drush_command() {
 function drush_ludwig_download() {
   /** @var \Drupal\ludwig\PackageManagerInterface $package_manager */
   $package_manager = \Drupal::service('ludwig.package_manager');
-  $packages = $package_manager->getPackages();
   /** @var \Drupal\ludwig\PackageDownloader $package_downloader */
   $package_downloader = \Drupal::service('ludwig.package_downloader');
 
+  $packages = array_filter($package_manager->getPackages(), function ($package) {
+    return empty($package['installed']);
+  });
   foreach ($packages as $name => $package) {
-    if (!empty($package['installed'])) {
-      drush_log(sprintf('The package "%s" is already installed.', $name), 'ok');
-      continue;
-    }
     if (empty($package['download_url'])) {
       drush_log(sprintf('No download_url was provided for package "%s".', $name), 'error');
       continue;
@@ -50,6 +48,10 @@ function drush_ludwig_download() {
     catch (\Exception $e) {
       drush_log($e->getMessage(), 'error');
     }
+  }
+
+  if (empty($packages)) {
+    drush_log('All packages have already been downloaded.', 'ok');
   }
 }
 
