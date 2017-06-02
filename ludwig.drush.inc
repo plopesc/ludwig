@@ -44,13 +44,18 @@ function drush_ludwig_download() {
     }
     catch (FileTransferException $e) {
       drush_log(new TranslatableMarkup($e->getMessage(), $e->arguments), 'error');
+      return;
     }
     catch (\Exception $e) {
       drush_log($e->getMessage(), 'error');
+      return;
     }
   }
 
-  if (empty($packages)) {
+  if (!empty($packages)) {
+    drupal_flush_all_caches();
+  }
+  else {
     drush_log('All packages have already been downloaded.', 'ok');
   }
 }

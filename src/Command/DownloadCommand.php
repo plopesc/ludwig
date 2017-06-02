@@ -2,13 +2,16 @@
 
 namespace Drupal\ludwig\Command;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Console\Annotations\DrupalCommand;
+use Drupal\Console\Core\Command\Shared\CommandTrait;
+use Drupal\Console\Core\Utils\ChainQueue;
 use Drupal\Core\FileTransfer\FileTransferException;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ludwig\PackageDownloaderInterface;
+use Drupal\ludwig\PackageManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
-use Drupal\Console\Core\Command\Shared\ContainerAwareCommandTrait;
 use Drupal\Console\Core\Style\DrupalStyle;
 
 /**
@@ -23,7 +26,46 @@ use Drupal\Console\Core\Style\DrupalStyle;
  */
 class DownloadCommand extends Command {
 
-  use ContainerAwareCommandTrait;
+  use CommandTrait;
+
+  /**
+   * The package manager.
+   *
+   * @var \Drupal\ludwig\PackageManagerInterface
+   */
+  protected $packageManager;
+
+  /**
+   * The package downloader.
+   *
+   * @var \Drupal\ludwig\PackageDownloaderInterface
+   */
+  protected $packageDownloader;
+
+  /**
+   * The chain queue.
+   *
+   * @var \Drupal\Console\Core\Utils\ChainQueue
+   */
+  protected $chainQueue;
+
+  /**
+   * Constructs a new ListCommand object.
+   *
+   * @param \Drupal\ludwig\PackageManagerInterface $package_manager
+   *   The package manager.
+   * @param \Drupal\ludwig\PackageDownloaderInterface $package_downloader
+   *   The package downloader.
+   * @param \Drupal\Console\Core\Utils\ChainQueue $chain_queue
+   *   The chain queue.
+   */
+  public function __construct(PackageManagerInterface $package_manager, PackageDownloaderInterface $package_downloader, ChainQueue $chain_queue) {
+    parent::__construct();
+
+    $this->packageManager = $package_manager;
+    $this->packageDownloader = $package_downloader;
+    $this->chainQueue = $chain_queue;
+  }
 
   /**
    * {@inheritdoc}
@@ -39,12 +81,8 @@ class DownloadCommand extends Command {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $io = new DrupalStyle($input, $output);
-    /** @var \Drupal\ludwig\PackageManagerInterface $package_manager */
-    $package_manager = $this->get('ludwig.package_manager');
-    /** @var \Drupal\ludwig\PackageDownloader $package_downloader */
-    $package_downloader = $this->get('ludwig.package_downloader');
 
-    $packages = array_filter($package_manager->getPackages(), function ($package) {
+    $packages = array_filter($this->packageManager->getPackages(), function ($package) {
       return empty($package['installed']);
     });
     foreach ($packages as $name => $package) {
@@ -54,18 +92,23 @@ class DownloadCommand extends Command {
       }
 
       try {
-        $package_downloader->download($package);
+        $this->packageDownloader->download($package);
         $io->success(sprintf($this->trans('commands.ludwig.download.messages.success'), $name));
       }
       catch (FileTransferException $e) {
-        $io->error(new TranslatableMarkup($e->getMessage(), $e->arguments));
+        $io->error(new FormattableMarkup($e->getMessage(), $e->arguments));
+        return;
       }
       catch (\Exception $e) {
         $io->error($e->getMessage());
+        return;
       }
     }
 
-    if (empty($packages)) {
+    if (!empty($packages)) {
+      $this->chainQueue->addCommand('cache:rebuild', ['cache' => 'all']);
+    }
+    else {
       $io->success($this->trans('commands.ludwig.download.messages.no-download'));
     }
   }

@@ -42,6 +42,7 @@ class ListCommand extends Command {
 
     $this->packageManager = $package_manager;
   }
+
   /**
    * {@inheritdoc}
    */
