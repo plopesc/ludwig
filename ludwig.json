@@ -1,8 +1,0 @@
-{
-  "require": {
-    "commerceguys/tax": {
-      "version": "v0.7.1",
-      "url": "https://github.com/commerceguys/tax/archive/v0.7.1.zip"
-    }
-  }
-}
