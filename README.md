@@ -53,7 +53,7 @@ new release, since the library is suddenly no longer found.
 - ludwig:list: List all managed packages.
 
 ### Drush
-- ludwig_download: Download missing packages.
+- ludwig-download: Download missing packages.
 
 ## Name origin
 Ludwig van Beethoven was a **deaf composer**.
