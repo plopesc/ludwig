@@ -5,4 +5,4 @@ services:
 
   ludwig.package_downloader:
     class: Drupal\ludwig\PackageDownloader
-    arguments: ['@plugin.manager.archiver', '@file_system', '@http_client', '@app.root', '@site.path']
+    arguments: ['@plugin.manager.archiver', '@file_system', '@http_client', '@app.root']

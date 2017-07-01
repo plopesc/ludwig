@@ -79,6 +79,7 @@ class PackageManager implements PackageManagerInterface {
           'provider' => $extension_name,
           'download_url' => $package_data['url'],
           'path' => $package_path,
+          'provider_path' => $extension_path,
           'namespace' => $namespace,
           'src_dir' => $src_dir,
           'installed' => !empty($namespace),

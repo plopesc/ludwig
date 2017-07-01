@@ -43,13 +43,6 @@ class PackageDownloader implements PackageDownloaderInterface {
   protected $root;
 
   /**
-   * The site path.
-   *
-   * @var string
-   */
-  protected $sitePath;
-
-  /**
    * The archive extraction path.
    *
    * @var string
@@ -74,21 +67,22 @@ class PackageDownloader implements PackageDownloaderInterface {
    *   The HTTP client.
    * @param string $root
    *   The app root.
-   * @param string $site_path
-   *   The site path.
    */
-  public function __construct(ArchiverManager $archiver_manager, FileSystemInterface $file_system, ClientInterface $http_client, $root, $site_path) {
+  public function __construct(ArchiverManager $archiver_manager, FileSystemInterface $file_system, ClientInterface $http_client, $root) {
     $this->archiverManager = $archiver_manager;
     $this->fileSystem = $file_system;
     $this->httpClient = $http_client;
     $this->root = $root;
-    $this->sitePath = $site_path;
   }
 
   /**
    * {@inheritdoc}
    */
   public function download(array $package) {
+    $provider_path = $this->root . '/' . $package['provider_path'];
+    if (!is_writable($provider_path)) {
+      throw new \Exception(sprintf('The extension directory %s is not writable.', $provider_path));
+    }
     $archive_path = $this->downloadArchive($package['download_url']);
     if (!$archive_path) {
       throw new \Exception(sprintf('Unable to retrieve %s from %s.', $package['name'], $package['download_url']));
@@ -103,15 +97,10 @@ class PackageDownloader implements PackageDownloaderInterface {
     // @todo Will this work for non-GitHub archives?
     $source_location = $this->fileSystem->realpath($this->getExtractionDirectory() . '/' . $files[0]);
     $package_destination = $this->root . '/' . $package['path'];
-    if (fileowner($source_location) == fileowner($this->sitePath)) {
-      $file_transfer = new Local($this->root);
-      $file_transfer->copyDirectory($source_location, $package_destination);
-      $new_perms = substr(sprintf('%o', fileperms($package_destination)), -4, -1) . "5";
-      $file_transfer->chmod($package_destination, intval($new_perms, 8), TRUE);
-    }
-    else {
-      throw new \Exception('Cannot move package to destination.');
-    }
+    $file_transfer = new Local($this->root);
+    $file_transfer->copyDirectory($source_location, $package_destination);
+    $new_perms = substr(sprintf('%o', fileperms($package_destination)), -4, -1) . "5";
+    $file_transfer->chmod($package_destination, intval($new_perms, 8), TRUE);
   }
 
   /**
