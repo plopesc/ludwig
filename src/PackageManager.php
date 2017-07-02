@@ -66,10 +66,17 @@ class PackageManager implements PackageManagerInterface {
           $package_namespaces = array_keys($autoload);
           $namespace = reset($package_namespaces);
           $src_dir = $autoload[$namespace];
-          // The namespace must not have the leading backslash.
-          if (substr($namespace, -1, 1) == '\\') {
-            $namespace = substr($namespace, 0, -1);
+          $src_dir = rtrim($src_dir, './');
+          // Autoloading fails if the namespace ends with a backslash.
+          $namespace = trim($namespace, '\\');
+        }
+        if ($autoload_key == 'psr-0' && !empty($namespace)) {
+          // Core only assumes that LudwigServiceProvider is adding PSR-4
+          // paths, each PSR-0 path needs to be converted in order to work.
+          if (!empty($src_dir)) {
+            $src_dir .= '/';
           }
+          $src_dir .= str_replace('\\', '/', $namespace);
         }
 
         $packages[$package_name] = [
