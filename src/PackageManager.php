@@ -60,8 +60,9 @@ class PackageManager implements PackageManagerInterface {
         $package = $this->jsonRead($this->root . '/' . $package_path . '/composer.json');
         $description = !empty($package['description']) ? $package['description'] : '';
         $homepage = !empty($package['homepage']) ? $package['homepage'] : '';
-        if (!empty($package['autoload'])) {
-          $autoload = reset($package['autoload']);
+        $autoload_key = isset($package['autoload']['psr-4']) ? 'psr-4' : 'psr-0';
+        if (!empty($package['autoload'][$autoload_key])) {
+          $autoload = $package['autoload'][$autoload_key];
           $package_namespaces = array_keys($autoload);
           $namespace = reset($package_namespaces);
           $src_dir = $autoload[$namespace];
