@@ -2,6 +2,7 @@
 
 namespace Drupal\ludwig\Commands;
 
+use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Drupal\Core\FileTransfer\FileTransferException;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\ludwig\PackageDownloaderInterface;
@@ -78,6 +79,34 @@ class LudwigCommands extends DrushCommands {
     else {
       $this->logger()->info('All packages have already been downloaded.');
     }
+  }
+
+  /**
+   * Lists packages managed by Ludwig.
+   *
+   * @command ludwig:list
+   * @aliases ludwig-list
+   * @field-labels
+   *   name: Package
+   *   version: Version
+   *   provider: Required By
+   *   status: Status
+   * @default-fields name,version,provider,status
+   *
+   * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
+   */
+  public function token() {
+    $has_missing_packages = FALSE;
+    $rows = [];
+    foreach ($this->packageManager->getPackages() as $package) {
+      $rows[] = [
+        'name' => $package['name'],
+        'version' => $package['version'],
+        'provider' => $package['provider'],
+        'status' => new TranslatableMarkup(($package['installed'] ? 'Installed' : 'Missing')),
+      ];
+    }
+    return new RowsOfFields($rows);
   }
 
 }
