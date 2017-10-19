@@ -95,7 +95,7 @@ class LudwigCommands extends DrushCommands {
    *
    * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
    */
-  public function token() {
+  public function list() {
     $has_missing_packages = FALSE;
     $rows = [];
     foreach ($this->packageManager->getPackages() as $package) {
